@@ -1,0 +1,63 @@
+version: '3.3'
+services:
+  backend:
+    container_name: tg-backend
+    depends_on:
+      - tarantool-replica
+      - tarantool-master
+    image: zeronethunter/tg-bot:latest
+    volumes:
+      - ./configs/config.yaml:/var/app/configs/config.yaml
+    environment:
+      WEBHOOK_SECRET_TOKEN: ${SECRET_TOKEN}
+      BOT_TOKEN: ${BOT_TOKEN}
+    ports:
+      - "1234:1234"
+    networks:
+      - default
+
+  tarantool-master:
+    depends_on:
+      - tarantool-replica
+    healthcheck:
+      test: [ "CMD", "tarantool_is_up" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    container_name: tg-master
+    hostname: tarantool-master
+    image: tarantool/tarantool:latest
+    restart: always
+    expose:
+      - "3301"
+    volumes:
+      - ./configs/tarantool/prod/master/init.lua:/opt/tarantool/init.lua
+      - /var/tarantool/M:/var/lib/tarantool
+    command: tarantool /opt/tarantool/init.lua
+
+    networks:
+      - default
+
+  tarantool-replica:
+    container_name: tg-replica
+    hostname: tarantool-replica
+    image: tarantool/tarantool:latest
+    restart: always
+    healthcheck:
+      test: [ "CMD", "tarantool_is_up" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    expose:
+      - "3301"
+    volumes:
+      - ./configs/tarantool/prod/replica/init.lua:/opt/tarantool/init.lua
+      - /var/tarantool/R:/var/lib/tarantool
+    command: tarantool /opt/tarantool/init.lua
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
+    external: false

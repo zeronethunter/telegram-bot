@@ -1,0 +1,26 @@
+logger:
+  debug: true
+
+bot:
+  # Password auto delete time in seconds
+  auto_delete: 20
+  webhook:
+    url: https://zenehu.space/
+    max_connections: 40
+    retry_count: 5
+    # Minimum sleep is 1 second
+    retry_sleep: 2
+    drop_pending_updates: true
+
+server:
+  host: 0.0.0.0
+  port: 1234
+
+tarantool:
+  host: tarantool-master
+  port: 3301
+  user: replicator
+  password: password
+  timeout: 5
+  reconnect: 2
+  max_reconnects: 3

@@ -1,0 +1,43 @@
+name: deploy
+on: [ workflow_dispatch ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: prepare system to deploy
+        uses: appleboy/ssh-action@master
+        env:
+          PASSWORD: ${{ secrets.SSH_PASSWORD }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: PASSWORD
+          script: |
+            echo $PASSWORD | sudo -S docker rm -f $(echo $PASSWORD | sudo -S docker ps -a -q)           
+            echo $PASSWORD | sudo -S docker pull zeronethunter/tg-bot
+            echo $PASSWORD | sudo -S rm -rf ~/backend
+      - name: copy file via ssh password
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "docker-compose.yaml, tarantool/, configs/"
+          target: "backend"
+          rm: true
+      - name: deploy
+        uses: appleboy/ssh-action@master
+        env:
+          PASSWORD: ${{ secrets.SSH_PASSWORD }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: PASSWORD
+          script: |
+            cd ~/backend
+            mkdir -p tarantool/M tarantool/R
+            echo $PASSWORD | sudo -S SECRET_TOKEN=${{ secrets.SECRET_TOKEN }} BOT_TOKEN=${{ secrets.BOT_TOKEN }} docker-compose up -d
