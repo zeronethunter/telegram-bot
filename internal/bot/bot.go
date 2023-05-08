@@ -5,24 +5,25 @@ import (
 	"strconv"
 	"time"
 
+	"telegram-bot/pkg/logger"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/labstack/gommon/log"
 
 	config "telegram-bot/internal/configuration"
-	logger "telegram-bot/pkg"
-
 	"telegram-bot/internal/telegram"
 )
 
 type Bot struct {
 	BotAPI     *tgbotapi.BotAPI
 	token      string
+	EncryptKey string
 	AutoDelete int
 	logger     *logger.Logger
 }
 
-func New(botToken, secretToken string, cfg *config.Config) (*Bot, error) {
+func New(botToken, secretToken, encryptKey string, cfg *config.Config) (*Bot, error) {
 	// Get instance of logger
 	newLogger := logger.GetInstance()
 	if cfg.Logger.Debug {
@@ -63,6 +64,7 @@ func New(botToken, secretToken string, cfg *config.Config) (*Bot, error) {
 		BotAPI:     bot,
 		logger:     logger.GetInstance(),
 		AutoDelete: cfg.Bot.AutoDelete,
+		EncryptKey: encryptKey,
 		token:      botToken,
 	}, nil
 }

@@ -40,4 +40,4 @@ jobs:
           script: |
             cd ~/backend
             mkdir -p tarantool/M tarantool/R
-            echo $PASSWORD | sudo -S SECRET_TOKEN=${{ secrets.SECRET_TOKEN }} BOT_TOKEN=${{ secrets.BOT_TOKEN }} docker-compose up -d
+            echo $PASSWORD | sudo -S SECRET_TOKEN=${{ secrets.SECRET_TOKEN }} BOT_TOKEN=${{ secrets.BOT_TOKEN }} AES_KEY=${{ secrets.AES_KEY }} docker-compose up -d

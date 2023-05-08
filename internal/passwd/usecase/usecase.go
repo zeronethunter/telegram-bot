@@ -3,13 +3,14 @@ package passwdUsecase
 import (
 	"telegram-bot/internal/models"
 	passwdRepository "telegram-bot/internal/passwd/repository"
+	"telegram-bot/pkg"
 )
 
 type PasswdUsecase interface {
 	SetService(userID int64, serviceName string) error
 	SetUsername(userID int64, serviceName, username string) error
-	SetPassword(userID int64, serviceName, password string) error
-	Get(userID int64, serviceName string) (string, string, error)
+	SetPassword(userID int64, serviceName, password, key string) error
+	Get(userID int64, serviceName, key string) (string, string, error)
 	GetAllServices(userID int64) ([]string, error)
 	Delete(userID int64, serviceName string) error
 	SetState(userID int64, state string) error
@@ -36,13 +37,22 @@ func (u *passwdUsecase) SetUsername(userID int64, serviceName, username string) 
 	return u.storage.SetUsername(userID, serviceName, username)
 }
 
-func (u *passwdUsecase) SetPassword(userID int64, serviceName, password string) error {
+func (u *passwdUsecase) SetPassword(userID int64, serviceName, password, key string) error {
+	password, err := pkg.Encrypt(password, key)
+	if err != nil {
+		return err
+	}
+
 	return u.storage.SetPassword(userID, serviceName, password)
 }
 
-func (u *passwdUsecase) Get(userID int64, serviceName string) (string, string, error) {
+func (u *passwdUsecase) Get(userID int64, serviceName, key string) (string, string, error) {
 	data, err := u.storage.Get(userID, serviceName)
 	if err != nil {
+		return "", "", err
+	}
+
+	if data.PasswordHash, err = pkg.Decrypt(data.PasswordHash, key); err != nil {
 		return "", "", err
 	}
 

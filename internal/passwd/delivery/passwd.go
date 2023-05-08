@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"strconv"
 
+	"telegram-bot/pkg/logger"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/labstack/echo/v4"
 
 	"telegram-bot/internal/bot"
 	passwdUsecase "telegram-bot/internal/passwd/usecase"
-	logger "telegram-bot/pkg"
 )
 
 type Handler struct {
@@ -202,14 +203,14 @@ func (h Handler) setUsername(m *tgbotapi.Message, lastService string) error {
 }
 
 func (h Handler) setPassword(m *tgbotapi.Message, lastService string) error {
-	err := h.usecase.SetPassword(m.From.ID, lastService, m.Text)
+	err := h.usecase.SetPassword(m.From.ID, lastService, m.Text, h.bot.EncryptKey)
 	if err != nil {
 		return err
 	}
 
 	username := ""
 
-	if username, _, err = h.usecase.Get(m.From.ID, lastService); err != nil {
+	if username, _, err = h.usecase.Get(m.From.ID, lastService, h.bot.EncryptKey); err != nil {
 		return err
 	}
 
@@ -251,7 +252,7 @@ func (h Handler) get(m *tgbotapi.Message) error {
 }
 
 func (h Handler) getService(m *tgbotapi.Message) error {
-	username, password, err := h.usecase.Get(m.From.ID, m.Text)
+	username, password, err := h.usecase.Get(m.From.ID, m.Text, h.bot.EncryptKey)
 	if err != nil {
 		return err
 	}

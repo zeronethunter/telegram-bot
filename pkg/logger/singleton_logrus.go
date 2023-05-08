@@ -3,6 +3,7 @@ package logger
 import (
 	"encoding/json"
 	"io"
+	"net/http"
 	"strconv"
 	"sync"
 	"time"
@@ -224,15 +225,6 @@ func Middleware() echo.MiddlewareFunc {
 			start := time.Now()
 			err := next(c)
 			if err != nil {
-				c.Error(err)
-			}
-			stop := time.Now()
-
-			p := req.URL.Path
-
-			bytesIn := req.Header.Get(echo.HeaderContentLength)
-
-			if err != nil {
 				// Error message to telegram
 				chatID, ok := c.Get("chatID").(int64)
 				if ok {
@@ -244,6 +236,16 @@ func Middleware() echo.MiddlewareFunc {
 					}
 				}
 
+				// OK response to telegram server to prevent spam
+				c.JSON(http.StatusOK, "Sorry, I can't handle your request\nTry again later \xE2\x9B\x94")
+			}
+			stop := time.Now()
+
+			p := req.URL.Path
+
+			bytesIn := req.Header.Get(echo.HeaderContentLength)
+
+			if err != nil {
 				GetInstance().Logrus.WithFields(logrus.Fields{
 					"error":         err.Error(),
 					"remote_ip":     c.RealIP(),

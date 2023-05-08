@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"os"
+
 	"telegram-bot/internal/bot"
 	config "telegram-bot/internal/configuration"
 	"telegram-bot/internal/server"
-	logger "telegram-bot/pkg"
+	"telegram-bot/pkg/logger"
 )
 
 // flag: --config <path_of_config>
@@ -29,7 +30,7 @@ func main() {
 
 	/*----------------------------bot-----------------------------*/
 	go func() {
-		tgbot, err := bot.New(os.Getenv("BOT_TOKEN"), os.Getenv("WEBHOOK_SECRET_TOKEN"), cfg)
+		tgbot, err := bot.New(os.Getenv("BOT_TOKEN"), os.Getenv("WEBHOOK_SECRET_TOKEN"), os.Getenv("AES_KEY"), cfg)
 		if err != nil {
 			l.Fatalf("failed to create bot: %s", err)
 		}

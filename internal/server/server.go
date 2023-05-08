@@ -3,6 +3,8 @@ package server
 import (
 	"time"
 
+	"telegram-bot/pkg/logger"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/tarantool/go-tarantool"
@@ -13,7 +15,6 @@ import (
 	passwdHandler "telegram-bot/internal/passwd/delivery"
 	passwdRepository "telegram-bot/internal/passwd/repository"
 	passwdUsecase "telegram-bot/internal/passwd/usecase"
-	logger "telegram-bot/pkg"
 )
 
 type Server struct {
