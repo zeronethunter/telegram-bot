@@ -12,14 +12,13 @@ services:
       WEBHOOK_SECRET_TOKEN: ${SECRET_TOKEN}
       BOT_TOKEN: ${BOT_TOKEN}
       AES_KEY: ${AES_KEY}
+      TARANTOOL_PASSWORD: ${TARANTOOL_PASSWORD}
     ports:
       - "1234:1234"
     networks:
       - default
 
   tarantool-master:
-    depends_on:
-      - tarantool-replica
     healthcheck:
       test: [ "CMD", "tarantool_is_up" ]
       interval: 10s
@@ -34,8 +33,9 @@ services:
     volumes:
       - ./configs/tarantool/prod/master/init.lua:/opt/tarantool/init.lua
       - /var/tarantool/M:/var/lib/tarantool
+    environment:
+      TARANTOOL_PASSWORD: ${TARANTOOL_PASSWORD}
     command: tarantool /opt/tarantool/init.lua
-
     networks:
       - default
 
@@ -54,6 +54,8 @@ services:
     volumes:
       - ./configs/tarantool/prod/replica/init.lua:/opt/tarantool/init.lua
       - /var/tarantool/R:/var/lib/tarantool
+    environment:
+      TARANTOOL_PASSWORD: ${TARANTOOL_PASSWORD}
     command: tarantool /opt/tarantool/init.lua
     networks:
       - default

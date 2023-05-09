@@ -100,13 +100,13 @@ func webhookSetup(bot *tgbotapi.BotAPI, wh telegram.Config, params tgbotapi.Para
 }
 
 func MenuKeyboard() tgbotapi.ReplyKeyboardMarkup {
-	// Create keyboard
 	return tgbotapi.NewReplyKeyboard(
 		[][]tgbotapi.KeyboardButton{
 			{
 				tgbotapi.NewKeyboardButton("1"),
 				tgbotapi.NewKeyboardButton("2"),
 				tgbotapi.NewKeyboardButton("3"),
+				tgbotapi.NewKeyboardButton("4"),
 			},
 			{
 				tgbotapi.NewKeyboardButton("help"),

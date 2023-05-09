@@ -11,6 +11,11 @@ import (
 const maxServices = 50
 
 type Storage interface {
+	CreateUser(userID int64, token string) error
+	SetToken(userID int64, token string) error
+	UpdateToken(userID int64, token string) error
+	GetUser(userID int64) (models.User, error)
+	DeleteCredentialsByUser(userID int64, serviceNames []string) error
 	SetService(userID int64, serviceName string) error
 	SetUsername(userID int64, serviceName string, username string) error
 	SetPassword(userID int64, serviceName string, password string) error
@@ -20,6 +25,17 @@ type Storage interface {
 	SetState(userID int64, state string) error
 	SetStateLastServer(userID int64, lastService string) error
 	GetState(userID int64) (models.State, error)
+}
+
+func parseUser(data []interface{}) models.User {
+	if data == nil {
+		return models.User{}
+	}
+
+	return models.User{
+		ID:    data[0].(uint64),
+		Token: data[1].(string),
+	}
 }
 
 func parseCredential(data []interface{}) models.Credentials {
@@ -102,6 +118,76 @@ func NewTarantool(host, port string, opts tarantool.Opts) (*Tarantool, error) {
 
 func (t *Tarantool) Close() error {
 	return t.conn.Close()
+}
+
+func (t *Tarantool) CreateUser(userID int64, token string) error {
+	_, err := t.conn.Upsert(
+		"users",
+		[]interface{}{
+			userID,
+			token,
+		},
+		[]interface{}{},
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *Tarantool) GetUser(userID int64) (models.User, error) {
+	resp, err := t.conn.Select("users", "primary", 0, 1, tarantool.IterEq, []interface{}{userID})
+	if err != nil {
+		return models.User{}, err
+	}
+
+	if len(resp.Data) == 0 || resp.Data == nil {
+		return models.User{}, nil
+	}
+
+	return parseUser(resp.Data[0].([]interface{})), nil
+}
+
+func (t *Tarantool) SetToken(userID int64, token string) error {
+	_, err := t.conn.Insert(
+		"users",
+		[]interface{}{
+			userID,
+			token,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *Tarantool) UpdateToken(userID int64, token string) error {
+	_, err := t.conn.Update(
+		"users",
+		"primary",
+		[]interface{}{userID},
+		[]interface{}{
+			[]interface{}{"=", 1, token},
+		})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *Tarantool) DeleteCredentialsByUser(userID int64, serviceNames []string) error {
+	for _, serviceName := range serviceNames {
+		_, err := t.conn.Delete("credentials", "primary", []interface{}{userID, serviceName})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (t *Tarantool) SetService(userID int64, serviceName string) error {

@@ -20,7 +20,6 @@ tarantool:
   host: tarantool-master
   port: 3301
   user: replicator
-  password: password
   timeout: 5
   reconnect: 2
   max_reconnects: 3
