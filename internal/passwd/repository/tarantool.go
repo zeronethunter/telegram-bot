@@ -15,7 +15,7 @@ type Storage interface {
 	SetToken(userID int64, token string) error
 	UpdateToken(userID int64, token string) error
 	GetUser(userID int64) (models.User, error)
-	DeleteCredentialsByUser(userID int64) error
+	DeleteCredentialsByUser(userID int64, serviceNames []string) error
 	SetService(userID int64, serviceName string) error
 	SetUsername(userID int64, serviceName string, username string) error
 	SetPassword(userID int64, serviceName string, password string) error
@@ -179,10 +179,12 @@ func (t *Tarantool) UpdateToken(userID int64, token string) error {
 	return nil
 }
 
-func (t *Tarantool) DeleteCredentialsByUser(userID int64) error {
-	_, err := t.conn.Delete("credentials", "primary", []interface{}{userID})
-	if err != nil {
-		return err
+func (t *Tarantool) DeleteCredentialsByUser(userID int64, serviceNames []string) error {
+	for _, serviceName := range serviceNames {
+		_, err := t.conn.Delete("credentials", "primary", []interface{}{userID, serviceName})
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

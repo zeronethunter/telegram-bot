@@ -79,7 +79,12 @@ func (u *passwdUsecase) GetUser(userID int64, key string) (models.User, error) {
 }
 
 func (u *passwdUsecase) DeleteCredentialsByUser(userID int64) error {
-	return u.storage.DeleteCredentialsByUser(userID)
+	s, err := u.GetAllServices(userID)
+	if err != nil {
+		return err
+	}
+
+	return u.storage.DeleteCredentialsByUser(userID, s)
 }
 
 func (u *passwdUsecase) SetService(userID int64, serviceName string) error {

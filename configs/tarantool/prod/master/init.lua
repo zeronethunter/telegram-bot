@@ -11,7 +11,7 @@ box.once("schema", function()
     box.schema.user.create('replicator', { password = secret })
     box.schema.user.grant('replicator', 'read,write,execute', 'universe', nil)
     box.schema.space.create("users")
-    box.space.users:create_index("primary", { type = "tree", parts = { 1, "unsigned", 2, "string" } })
+    box.space.users:create_index("primary", { type = "tree", parts = { 1, "unsigned" } })
     box.space.users:format({
         { name = 'user_id', type = 'unsigned' },
         { name = 'token', type = 'string' },

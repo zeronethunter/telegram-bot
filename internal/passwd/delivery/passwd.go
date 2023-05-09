@@ -235,7 +235,7 @@ func (h Handler) askToken(m *tgbotapi.Message) error {
 
 func (h Handler) checkToken(m *tgbotapi.Message, realToken string) error {
 	if m.Text != realToken {
-		msg := tgbotapi.NewMessage(m.Chat.ID, "Wrong security password\\.\nTry again:")
+		msg := tgbotapi.NewMessage(m.Chat.ID, "Wrong security password.\nTry again:")
 		msg.ReplyMarkup = h.BackToMenuKeyboard()
 
 		if _, err := h.bot.BotAPI.Send(msg); err != nil {
@@ -298,6 +298,10 @@ func (h Handler) setToken(m *tgbotapi.Message) error {
 func (h Handler) updateToken(m *tgbotapi.Message) error {
 	err := h.usecase.UpdateToken(m.From.ID, m.Text, h.bot.EncryptKey)
 	if err != nil {
+		return err
+	}
+
+	if err = h.usecase.DeleteCredentialsByUser(m.From.ID); err != nil {
 		return err
 	}
 

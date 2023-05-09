@@ -19,8 +19,6 @@ services:
       - default
 
   tarantool-master:
-    depends_on:
-      - tarantool-replica
     healthcheck:
       test: [ "CMD", "tarantool_is_up" ]
       interval: 10s
