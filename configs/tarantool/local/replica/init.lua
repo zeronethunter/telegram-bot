@@ -1,14 +1,13 @@
 -- instance file for the replica
 box.cfg {
     listen = 3302,
-    replication = { 'replicator:password@localhost:3301', -- master URI
-                    'replicator:password@localhost:3302' }, -- replica URI
+    replication = { 'replicator:' .. os.getenv("TARANTOOL_PASSWORD") .. '@localhost:3301', -- master URI
+                    'replicator:' .. os.getenv("TARANTOOL_PASSWORD") .. '@localhost:3302' }, -- replica URI
     read_only = true,
 }
 box.once("schema", function()
-    local secret = os.getenv("TARANTOOL_PASSWORD")
 
-    box.schema.user.create('replicator', { password = secret })
+    box.schema.user.create('replicator', { password = os.getenv("TARANTOOL_PASSWORD") })
     box.schema.user.grant('replicator', 'read,write,execute', 'universe', nil)
     box.schema.space.create("users")
     box.space.users:create_index("primary", { type = "tree", parts = { 1, "unsigned", 2, "string" } })
