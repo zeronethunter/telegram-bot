@@ -35,7 +35,7 @@ services:
     volumes:
       - ./configs/tarantool/prod/master/init.lua:/opt/tarantool/init.lua
       - /var/tarantool/M:/var/lib/tarantool
-    command: tarantool /opt/tarantool/init.lua
+    command: TARANTOOL_PASSWORD=${TARANTOOL_PASSWORD} tarantool /opt/tarantool/init.lua
 
     networks:
       - default
@@ -55,7 +55,7 @@ services:
     volumes:
       - ./configs/tarantool/prod/replica/init.lua:/opt/tarantool/init.lua
       - /var/tarantool/R:/var/lib/tarantool
-    command: tarantool /opt/tarantool/init.lua
+    command: TARANTOOL_PASSWORD=${TARANTOOL_PASSWORD} tarantool /opt/tarantool/init.lua
     networks:
       - default
 
