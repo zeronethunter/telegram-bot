@@ -6,15 +6,24 @@ box.cfg {
     read_only = true,
 }
 box.once("schema", function()
-    box.schema.user.create('replicator', { password = 'password' })
+    local secret = os.getenv("TARANTOOL_PASSWORD")
+
+    box.schema.user.create('replicator', { password = secret })
     box.schema.user.grant('replicator', 'read,write,execute', 'universe', nil)
+    box.schema.space.create("users")
+    box.space.users:create_index("primary", { type = "tree", parts = { 1, "unsigned", 2, "string" } })
+    box.space.users:format({
+        { name = 'user_id', type = 'unsigned' },
+        { name = 'token', type = 'string' },
+    })
+
     box.schema.space.create("credentials")
     box.space.credentials:create_index("primary", { type = "tree", parts = { 1, "unsigned", 2, "string" } })
     box.space.credentials:format({
         { name = 'user_id', type = 'unsigned' },
         { name = 'service_name', type = 'string' },
         { name = 'login', type = 'string', is_nullable = true },
-        { name = 'password', type = 'string', is_nullable = true }
+        { name = 'password', type = 'string', is_nullable = true },
     })
 
     box.schema.space.create("state")

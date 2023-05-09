@@ -7,6 +7,11 @@ import (
 )
 
 type PasswdUsecase interface {
+	CreateUser(userID int64, token string, key string) error
+	SetToken(userID int64, token string, key string) error
+	UpdateToken(userID int64, token string, key string) error
+	GetUser(userID int64, key string) (models.User, error)
+	DeleteCredentialsByUser(userID int64) error
 	SetService(userID int64, serviceName string) error
 	SetUsername(userID int64, serviceName, username string) error
 	SetPassword(userID int64, serviceName, password, key string) error
@@ -27,6 +32,54 @@ func NewPasswdUsecase(storage passwdRepository.Storage) PasswdUsecase {
 	return &passwdUsecase{
 		storage: storage,
 	}
+}
+
+func (u *passwdUsecase) CreateUser(userID int64, token string, key string) error {
+	token, err := pkg.Encrypt(token, key)
+	if err != nil {
+		return err
+	}
+
+	return u.storage.CreateUser(userID, token)
+}
+
+func (u *passwdUsecase) SetToken(userID int64, token string, key string) error {
+	token, err := pkg.Encrypt(token, key)
+	if err != nil {
+		return err
+	}
+
+	return u.storage.SetToken(userID, token)
+}
+
+func (u *passwdUsecase) UpdateToken(userID int64, token string, key string) error {
+	token, err := pkg.Encrypt(token, key)
+	if err != nil {
+		return err
+	}
+
+	return u.storage.UpdateToken(userID, token)
+}
+
+func (u *passwdUsecase) GetUser(userID int64, key string) (models.User, error) {
+	user, err := u.storage.GetUser(userID)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	if user == (models.User{}) {
+		return models.User{}, nil
+	}
+
+	if user.Token, err = pkg.Decrypt(user.Token, key); err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
+}
+
+func (u *passwdUsecase) DeleteCredentialsByUser(userID int64) error {
+	return u.storage.DeleteCredentialsByUser(userID)
 }
 
 func (u *passwdUsecase) SetService(userID int64, serviceName string) error {
