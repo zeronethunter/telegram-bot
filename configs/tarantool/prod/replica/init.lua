@@ -1,8 +1,8 @@
 -- instance file for the replica
 box.cfg {
     listen = 3301,
-    replication = { 'replicator:password@tarantool-master:3301', -- master URI
-                    'replicator:password@tarantool-replica:3301' }, -- replica URI
+    replication = { 'replicator:' + os.getenv("TARANTOOL_PASSWORD") + '@tarantool-master:3301', -- master URI
+                    'replicator:' + os.getenv("TARANTOOL_PASSWORD") + '@tarantool-replica:3301' }, -- replica URI
     read_only = true,
 }
 box.once("schema", function()
