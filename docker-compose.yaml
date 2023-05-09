@@ -12,6 +12,7 @@ services:
       WEBHOOK_SECRET_TOKEN: ${SECRET_TOKEN}
       BOT_TOKEN: ${BOT_TOKEN}
       AES_KEY: ${AES_KEY}
+      TARANTOOL_PASSWORD: ${TARANTOOL_PASSWORD}
     ports:
       - "1234:1234"
     networks:

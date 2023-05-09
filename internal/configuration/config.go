@@ -24,7 +24,6 @@ const (
 	tarantoolHost          = "localhost"
 	tarantoolPort          = "3301"
 	tarantoolUser          = "admin"
-	tarantoolPass          = "admin"
 	tarantoolTimeout       = 2
 	tarantoolReconnect     = 2
 	tarantoolMaxReconnects = 3
@@ -52,7 +51,6 @@ type Config struct {
 		Host          string `yaml:"host"`
 		Port          string `yaml:"port"`
 		User          string `yaml:"user"`
-		Pass          string `yaml:"password"`
 		Timeout       int    `yaml:"timeout"`
 		Reconnect     int    `yaml:"reconnect"`
 		MaxReconnects uint   `yaml:"max_reconnects"`
@@ -102,7 +100,6 @@ func New() *Config {
 			Host          string `yaml:"host"`
 			Port          string `yaml:"port"`
 			User          string `yaml:"user"`
-			Pass          string `yaml:"password"`
 			Timeout       int    `yaml:"timeout"`
 			Reconnect     int    `yaml:"reconnect"`
 			MaxReconnects uint   `yaml:"max_reconnects"`
@@ -110,7 +107,6 @@ func New() *Config {
 			Host:          tarantoolHost,
 			Port:          tarantoolPort,
 			User:          tarantoolUser,
-			Pass:          tarantoolPass,
 			Timeout:       tarantoolTimeout,
 			Reconnect:     tarantoolReconnect,
 			MaxReconnects: tarantoolMaxReconnects,

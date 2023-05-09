@@ -1,6 +1,7 @@
 package server
 
 import (
+	"os"
 	"time"
 
 	"telegram-bot/pkg/logger"
@@ -70,7 +71,7 @@ func (s *Server) MakePasswd() error {
 		Reconnect:     time.Duration(s.Config.Tarantool.Reconnect) * time.Second,
 		MaxReconnects: s.Config.Tarantool.MaxReconnects,
 		User:          s.Config.Tarantool.User,
-		Pass:          s.Config.Tarantool.Pass,
+		Pass:          os.Getenv("TARANTOOL_PASSWORD"),
 	}
 	t, err := passwdRepository.NewTarantool(s.Config.Tarantool.Host, s.Config.Tarantool.Port, opts)
 	if err != nil {
